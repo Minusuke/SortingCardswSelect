@@ -1,118 +1,157 @@
-/* eslint-disable */
+let cartas = [];
+let cartasOrdenadas = [];
 
-import "./style.css";
-
-window.onload = function() {
-  //write your code here
-
-  // Función para generar una lista de cartas aleatorias
-  function generateRandomCards(numCards) {
-    const values = [
-      "A",
-      "2",
-      "3",
-      "4",
-      "5",
-      "6",
-      "7",
-      "8",
-      "9",
-      "10",
-      "J",
-      "Q",
-      "K"
-    ];
-    const suits = ["♠", "♥", "♦", "♣"];
-    const cards = [];
-
-    for (let i = 0; i < numCards; i++) {
-      const randomValue = values[Math.floor(Math.random() * values.length)];
-      const randomSuit = suits[Math.floor(Math.random() * suits.length)];
-      cards.push(randomValue + randomSuit);
-    }
-
-    return cards;
-  }
-
-  // Función para dibujar las cartas en el contenedor
-  function drawCards(cards) {
-    const cardContainer = document.getElementById("cardContainer");
-    cardContainer.innerHTML = "";
-
-    for (let i = 0; i < cards.length; i++) {
-      const cardElement = document.createElement("div");
-      cardElement.className = "card";
-      cardElement.textContent = cards[i];
-      cardContainer.appendChild(cardElement);
-    }
-  }
-
-  // Función para ordenar las cartas usando el algoritmo de clasificación selection
-  function sortCards(cards) {
-    const sortedCards = [...cards];
-    const numCards = sortedCards.length;
-
-    for (let i = 0; i < numCards - 1; i++) {
-      let minIndex = i;
-
-      for (let j = i + 1; j < numCards; j++) {
-        if (sortedCards[j] < sortedCards[minIndex]) {
-          minIndex = j;
-        }
-      }
-
-      if (minIndex !== i) {
-        const temp = sortedCards[i];
-        sortedCards[i] = sortedCards[minIndex];
-        sortedCards[minIndex] = temp;
-      }
-    }
-
-    return sortedCards;
-  }
-
-  // Función para mostrar el registro de cambios
-  function showLog(log) {
-    const logContainer = document.getElementById("logContainer");
-    logContainer.innerHTML = "";
-
-    for (let i = 0; i < log.length; i++) {
-      const logEntry = document.createElement("div");
-      logEntry.textContent = log[i];
-      logContainer.appendChild(logEntry);
-    }
-  }
-
-  // Manejar el evento de clic en el botón de sorteo
-  document.getElementById("drawButton").addEventListener("click", function() {
-    const numCardsInput = document.getElementById("numCardsInput");
-    const numCards = parseInt(numCardsInput.value);
-
-    if (isNaN(numCards) || numCards <= 0) {
-      alert("Ingrese un número válido de cartas.");
-      return;
-    }
-
-    const cards = generateRandomCards(numCards);
-    drawCards(cards);
-  });
-
-  // Manejar el evento de clic en el botón de clasificación
-  document.getElementById("sortButton").addEventListener("click", function() {
-    const numCardsInput = document.getElementById("numCardsInput");
-    const numCards = parseInt(numCardsInput.value);
-
-    if (isNaN(numCards) || numCards <= 0) {
-      alert("Ingrese un número válido de cartas.");
-      return;
-    }
-
-    const cards = generateRandomCards(numCards);
-    const sortedCards = sortCards(cards);
-    const log = [
-      "Cartas generadas: " + cards.join(", "),
-      "Cartas clasificadas: " + sortedCards.join(", ")
-    ];
-    showLog(log);
-  });
+const cambioDePintas = {
+  1: "A",
+  11: "J",
+  12: "Q",
+  13: "K",
 };
+
+function elegirCartasAlAzar() {
+  let cantidad = document.getElementById("cantidadInput").value;
+  let numero = [9, 5, 4, 3, 6, 7, 8, 1, 11, 12, 13, 2, 10];
+  let pinta = ['♥', '♦', '♣', '♠'];
+  cartas = generarCartas(cantidad, numero, pinta);
+  mostrarCartas(cartas, "cartasContainer");
+  document.getElementById("cartasOrdenadasContainer").innerHTML = "";
+}
+
+function generarCartas(cantidad, numero, pinta) {
+  let cartasGeneradas = [];
+  for (let i = 0; i < cantidad; i++) {
+    let numRandom = numero[Math.floor(Math.random() * numero.length)];
+    let pintaRandom = pinta[Math.floor(Math.random() * pinta.length)];
+    let carta = {
+      numero: numRandom,
+      pinta: pintaRandom,
+    };
+    cartasGeneradas.push(carta);
+  }
+  return cartasGeneradas;
+}
+
+function mostrarCartas(cartasAMostrar, containerId) {
+  let cartasContainer = document.getElementById(containerId);
+  cartasContainer.innerHTML = "";
+
+  cartasAMostrar.forEach(carta => {
+    let cartaContainer = document.createElement("div");
+    cartaContainer.classList.add("cartasContainer");
+
+    let numeroElement = document.createElement("div");
+    numeroElement.textContent = cambioDePintas[carta.numero] || carta.numero;
+    numeroElement.classList.add("numero");
+
+    let pintaElement = document.createElement("div");
+    let pintaTexto = carta.pinta;
+    pintaElement.classList.add("pinta");
+    if (carta.pinta === "♥" || carta.pinta === "♦") {
+      pintaElement.classList.add("rojo");
+    }
+
+    let pintaElementTop = document.createElement("p");
+    pintaElementTop.textContent = pintaTexto;
+    let pintaElementBottom = document.createElement("span");
+    pintaElementBottom.textContent = pintaTexto;
+
+    pintaElement.appendChild(pintaElementTop);
+    pintaElement.appendChild(pintaElementBottom);
+
+    cartaContainer.appendChild(numeroElement);
+    cartaContainer.appendChild(pintaElement);
+
+    cartasContainer.appendChild(cartaContainer);
+  });
+}
+
+
+
+function selectSort(arr) {
+  let pasos = []; 
+  arr = [...arr]; 
+  let min = 0;
+  while (min < arr.length - 1) {
+    for (let i = min + 1; i < arr.length; i++) {
+      if (arr[min].numero > arr[i].numero) {
+        let aux = arr[min];
+        arr[min] = arr[i];
+        arr[i] = aux;
+        pasos.push([...arr]); 
+      }
+    }
+    min++;
+  }
+  return pasos; 
+}
+
+function ordenarCartas() {
+  cartasOrdenadas = cartas.slice();
+  mostrarPasosIntermedios(selectSort(cartasOrdenadas));
+}
+
+function mostrarPasosIntermedios(pasos) {
+  let container = document.getElementById("cartasOrdenadasContainer");
+  container.innerHTML = "";
+
+  let titulo = document.createElement("h1");
+  titulo.textContent = "Select Sort";
+  container.appendChild(titulo);
+
+  let pasosOrdenados = [...pasos, cartasOrdenadas];
+
+  let indexUltimoPaso = pasosOrdenados.findIndex((step) =>
+    step.every((carta, i) => carta.numero === cartasOrdenadas[i].numero && carta.pinta === cartasOrdenadas[i].pinta)
+  );
+
+  if (indexUltimoPaso !== -1) {
+    pasosOrdenados = pasosOrdenados.slice(0, indexUltimoPaso);
+  }
+
+  let metodo = pasosOrdenados.map((step) => step.map((carta) => {
+    const cartaContainer = document.createElement("div");
+    cartaContainer.classList.add("carta");
+
+    const numeroElement = document.createElement("div");
+    numeroElement.textContent = cambioDePintas[carta.numero] || carta.numero;
+    numeroElement.classList.add("numero");
+
+    const pintaElement = document.createElement("div");
+    pintaElement.classList.add("pinta");
+
+    const pintaTextoTop = document.createElement("span");
+    pintaTextoTop.textContent = carta.pinta;
+    pintaTextoTop.classList.add("pinta-metodo-span");
+    
+    const pintaTextoBottom = document.createElement("p");
+    pintaTextoBottom.textContent = carta.pinta;
+    pintaTextoBottom.classList.add("pinta-metodo-p");
+
+    if (carta.pinta === "♥" || carta.pinta === "♦") {
+      pintaElement.classList.add("rojo");
+    }
+
+    pintaElement.appendChild(pintaTextoTop);
+    pintaElement.appendChild(pintaTextoBottom);
+
+    cartaContainer.appendChild(numeroElement);
+    cartaContainer.appendChild(pintaElement);
+
+    return cartaContainer;
+  }));
+
+  metodo.forEach((fila, index) => {
+    const filaContainer = document.createElement("div");
+    filaContainer.classList.add("filaContainer");
+
+    fila.forEach((carta) => {
+      const cartaContainer = document.createElement("div");
+      cartaContainer.classList.add("cartasContainer");
+
+      cartaContainer.appendChild(carta);
+      filaContainer.appendChild(cartaContainer);
+    });
+
+    container.appendChild(filaContainer);
+  });
+}
