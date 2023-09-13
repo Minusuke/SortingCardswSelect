@@ -1,157 +1,113 @@
-let cartas = [];
-let cartasOrdenadas = [];
+let btnDraw = document.querySelector("#btnDraw");
+let btnSort = document.querySelector("#btnSort");
 
-const cambioDePintas = {
-  1: "A",
-  11: "J",
-  12: "Q",
-  13: "K",
-};
+let numeros = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+let pintas = ["♦", "♥", "♠", "♣"];
+let orderCards = [];
 
-function elegirCartasAlAzar() {
-  let cantidad = document.getElementById("cantidadInput").value;
-  let numero = [9, 5, 4, 3, 6, 7, 8, 1, 11, 12, 13, 2, 10];
-  let pinta = ['♥', '♦', '♣', '♠'];
-  cartas = generarCartas(cantidad, numero, pinta);
-  mostrarCartas(cartas, "cartasContainer");
-  document.getElementById("cartasOrdenadasContainer").innerHTML = "";
-}
+function createCards(elem) {
+  let input = document.getElementById("amountOfCards");
+  let amountOfCards = parseInt(input.value); //valido entero para cantidad de cartas a generar
+  orderCards = [];
 
-function generarCartas(cantidad, numero, pinta) {
-  let cartasGeneradas = [];
-  for (let i = 0; i < cantidad; i++) {
-    let numRandom = numero[Math.floor(Math.random() * numero.length)];
-    let pintaRandom = pinta[Math.floor(Math.random() * pinta.length)];
-    let carta = {
-      numero: numRandom,
-      pinta: pintaRandom,
-    };
-    cartasGeneradas.push(carta);
-  }
-  return cartasGeneradas;
-}
+  for (let i = 0; i < amountOfCards; i++) {
+    let randomNumber = Math.floor(Math.random() * numeros.length);
+    let randomSuit = Math.floor(Math.random() * pintas.length);
 
-function mostrarCartas(cartasAMostrar, containerId) {
-  let cartasContainer = document.getElementById(containerId);
-  cartasContainer.innerHTML = "";
+    let card = document.createElement("div");
+    card.classList.add("card");
 
-  cartasAMostrar.forEach(carta => {
-    let cartaContainer = document.createElement("div");
-    cartaContainer.classList.add("cartasContainer");
+    let topSuit = document.createElement("div");
+    topSuit.classList.add("topSuit");
+    topSuit.innerHTML = pintas[randomSuit];
 
-    let numeroElement = document.createElement("div");
-    numeroElement.textContent = cambioDePintas[carta.numero] || carta.numero;
-    numeroElement.classList.add("numero");
+    let middleNumber = document.createElement("div");
+    middleNumber.classList.add("middleNumber");
+    let num = numeros[randomNumber];
+    middleNumber.innerHTML = changeValue(num);
 
-    let pintaElement = document.createElement("div");
-    let pintaTexto = carta.pinta;
-    pintaElement.classList.add("pinta");
-    if (carta.pinta === "♥" || carta.pinta === "♦") {
-      pintaElement.classList.add("rojo");
+    let bottonSuit = document.createElement("div");
+    bottonSuit.classList.add("bottonSuit");
+
+    if (topSuit.innerHTML === "♥" || topSuit.innerHTML === "♦") {
+      topSuit.style.color = "red";
+      middleNumber.style.color = "red";
+      bottonSuit.style.color = "red";
+    } else {
+      topSuit.style.color = "black";
+      middleNumber.style.color = "black";
+      bottonSuit.style.color = "black";
     }
 
-    let pintaElementTop = document.createElement("p");
-    pintaElementTop.textContent = pintaTexto;
-    let pintaElementBottom = document.createElement("span");
-    pintaElementBottom.textContent = pintaTexto;
+    bottonSuit.innerHTML = topSuit.innerHTML;
 
-    pintaElement.appendChild(pintaElementTop);
-    pintaElement.appendChild(pintaElementBottom);
+    card.appendChild(topSuit);
+    card.appendChild(middleNumber);
+    card.appendChild(bottonSuit);
+    elem.appendChild(card);
 
-    cartaContainer.appendChild(numeroElement);
-    cartaContainer.appendChild(pintaElement);
-
-    cartasContainer.appendChild(cartaContainer);
-  });
+    let cardContent = {
+      number: num,
+      html: card.innerHTML
+    };
+    orderCards.push(cardContent);
+  }
 }
 
+function changeValue(valor) {
+  switch (valor) {
+    case 1:
+      return "A";
+    case 11:
+      return "J";
+    case 12:
+      return "Q";
+    case 13:
+      return "K";
+    default:
+      return valor.toString();
+  }
+}
 
+btnDraw.addEventListener("click", e => {
+  const cardDeck = document.querySelector("#cardDeck");
+  cardDeck.innerHTML = "";
+  createCards(cardDeck);
+  let sortDeck = document.getElementById("sortDeck");
+  sortDeck.innerHTML = "";
+});
 
-function selectSort(arr) {
-  let pasos = []; 
-  arr = [...arr]; 
-  let min = 0;
-  while (min < arr.length - 1) {
-    for (let i = min + 1; i < arr.length; i++) {
-      if (arr[min].numero > arr[i].numero) {
-        let aux = arr[min];
-        arr[min] = arr[i];
-        arr[i] = aux;
-        pasos.push([...arr]); 
+btnSort.addEventListener("click", e => {
+  let sortDeck = document.getElementById("sortDeck");
+  sortDeck.innerHTML = "";
+
+  let currentOrder = [...orderCards];
+  for (let i = 0; i < currentOrder.length - 1; i++) {
+    let minIndex = i;
+
+    for (let j = i + 1; j < currentOrder.length; j++) {
+      if (currentOrder[j].number < currentOrder[minIndex].number) {
+        minIndex = j;
       }
     }
-    min++;
-  }
-  return pasos; 
-}
 
-function ordenarCartas() {
-  cartasOrdenadas = cartas.slice();
-  mostrarPasosIntermedios(selectSort(cartasOrdenadas));
-}
-
-function mostrarPasosIntermedios(pasos) {
-  let container = document.getElementById("cartasOrdenadasContainer");
-  container.innerHTML = "";
-
-  let titulo = document.createElement("h1");
-  titulo.textContent = "Select Sort";
-  container.appendChild(titulo);
-
-  let pasosOrdenados = [...pasos, cartasOrdenadas];
-
-  let indexUltimoPaso = pasosOrdenados.findIndex((step) =>
-    step.every((carta, i) => carta.numero === cartasOrdenadas[i].numero && carta.pinta === cartasOrdenadas[i].pinta)
-  );
-
-  if (indexUltimoPaso !== -1) {
-    pasosOrdenados = pasosOrdenados.slice(0, indexUltimoPaso);
-  }
-
-  let metodo = pasosOrdenados.map((step) => step.map((carta) => {
-    const cartaContainer = document.createElement("div");
-    cartaContainer.classList.add("carta");
-
-    const numeroElement = document.createElement("div");
-    numeroElement.textContent = cambioDePintas[carta.numero] || carta.numero;
-    numeroElement.classList.add("numero");
-
-    const pintaElement = document.createElement("div");
-    pintaElement.classList.add("pinta");
-
-    const pintaTextoTop = document.createElement("span");
-    pintaTextoTop.textContent = carta.pinta;
-    pintaTextoTop.classList.add("pinta-metodo-span");
-    
-    const pintaTextoBottom = document.createElement("p");
-    pintaTextoBottom.textContent = carta.pinta;
-    pintaTextoBottom.classList.add("pinta-metodo-p");
-
-    if (carta.pinta === "♥" || carta.pinta === "♦") {
-      pintaElement.classList.add("rojo");
+    if (minIndex !== i) {
+      let temp = currentOrder[i];
+      currentOrder[i] = currentOrder[minIndex];
+      currentOrder[minIndex] = temp;
     }
 
-    pintaElement.appendChild(pintaTextoTop);
-    pintaElement.appendChild(pintaTextoBottom);
+    let currentStep = document.createElement("div");
+    currentStep.classList.add("lines");
+    currentStep.innerHTML = `log ${i + 1}:`;
+    sortDeck.appendChild(currentStep);
 
-    cartaContainer.appendChild(numeroElement);
-    cartaContainer.appendChild(pintaElement);
+    for (let h = 0; h < currentOrder.length; h++) {
+      let newCard = document.createElement("div");
+      newCard.classList.add("newCard");
 
-    return cartaContainer;
-  }));
-
-  metodo.forEach((fila, index) => {
-    const filaContainer = document.createElement("div");
-    filaContainer.classList.add("filaContainer");
-
-    fila.forEach((carta) => {
-      const cartaContainer = document.createElement("div");
-      cartaContainer.classList.add("cartasContainer");
-
-      cartaContainer.appendChild(carta);
-      filaContainer.appendChild(cartaContainer);
-    });
-
-    container.appendChild(filaContainer);
-  });
-}
+      newCard.innerHTML = currentOrder[h].html;
+      currentStep.appendChild(newCard);
+    }
+  }
+});

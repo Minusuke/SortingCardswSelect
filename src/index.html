@@ -1,22 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <link rel="stylesheet" href="style.css" />
-    <title>selector</title>
+    <title>Card generator Select sorting js</title>
+    <link rel="stylesheet" href="/src/style.css" />
   </head>
+
   <body>
-    
-    <input min=0 type="number" id="cantidadInput" placeholder="Cantidad de cartas">
-    <button onclick="elegirCartasAlAzar()">Draw</button>
-    <button onclick="ordenarCartas()">Sort</button>
-    <div id="cartasContainer"></div>
-  
-    <div id="cartasOrdenadasContainer"></div>
-    <script src="index.js"></script>
+    <!-- Sección de entrada -->
+    <div id="inputs">
+      <label for="original">Original: </label>
+      <!-- Campo de entrada de cantidad de cartas -->
+      <input id="amountOfCards" name="amountOfCards" type="text" />
+      <!-- Botones para crear y ordenar cartas -->
+      <button id="btnDraw" class="button">Draw</button>
+      <button id="btnSort" class="button">Sort</button>
     </div>
+
+    <!-- area donde se muestran las cartas generadas segun cantidad que ingresa el usuario -->
+    <div id="cardDeck"></div>
+
+    <!-- Etiqueta para mostrar información sobre el proceso de ordenamiento -->
+    <label id="bubbleLabel" for="Selector">Selector Log: </label>
+    <!-- Área donde se mostrarán las cartas ordenadas -->
+    <div id="sortDeck"></div>
+
+    <!-- Script para la lógica de JavaScript -->
+    <script src="/src/app.js"></script>
   </body>
 </html>
